@@ -2,17 +2,16 @@ const sql = require("./db.js");
 
 // constructor
 const Product = function(product) {
-  this.id = product.id;
-  this.Name = product.Name;
-  this.Type = product.Type;
-  this.Price = product.Price;
-  this.Image = product.Image;
-  this.Store = product.Store;
-  this.URL = product.URL;
+  this.prodId = product.productid;
+  this.companyId = product.companyid;
+  this.price = product.price;
+  this.image = product.image;
+  this.link = product.link;
+  this.group = product.group;
 };
 
 Product.create = (newProduct, result) => {
-    sql.query("INSERT INTO product SET ?", newProduct, (err, res) => {
+    sql.query("INSERT INTO product_company SET ?", newProduct, (err, res) => {
       if (err) {
         console.log("error: ", err);
         result(err, null);
@@ -24,8 +23,8 @@ Product.create = (newProduct, result) => {
     });
   };
 
-Product.findById = (id, result) => {
-    sql.query("SELECT * FROM product WHERE id = ?", [id], (err, res) => {
+Product.findById = (prodId, companyId, result) => {
+    sql.query("SELECT * FROM product_company WHERE productid = ? AND companyid = ?", [prodId, companyId], (err, res) => {
       if (err) {
         console.log("error: ", err);
         result(err, null);  
@@ -43,7 +42,7 @@ Product.findById = (id, result) => {
   };
 
 Product.getAll = (result) => {
-    let query = "SELECT * FROM product";
+    let query = "SELECT * FROM product_company";
   
     sql.query(query, (err, res) => {
       if (err) {
@@ -57,10 +56,10 @@ Product.getAll = (result) => {
     });
   };
 
-Product.updateById = (id, product, result) => {
+Product.updateById = (prodId, companyId, product, result) => {
     sql.query(
-      "UPDATE product SET Name = ?, Type = ?, Price = ?, Image = ?, Store = ?, URL = ? WHERE id = ?",
-      [product.Name, product.Type, product.Price, product.Image, product.Store, product.URL, id],
+      "UPDATE product_company SET price = ?, image = ?, link = ?, `group` = ? WHERE productid = ? AND companyid = ?",
+      [product.price, product.image, product.link, product.group, prodId, companyId],
       (err, res) => {
         if (err) {
           console.log("error: ", err);
@@ -73,14 +72,14 @@ Product.updateById = (id, product, result) => {
           return;
         }
   
-        console.log("updated product: ", { id: id, ...product });
-        result(null, { id: id, ...product });
+        console.log("updated product: ", { id: prodId, ...product });
+        result(null, { id: prodId, ...product });
       }
     );
   };
 
-Product.remove = (id, result) => {
-    sql.query("DELETE FROM product WHERE ID = ?", [id], (err, res) => {
+Product.remove = (prodId, companyId, result) => {
+    sql.query("DELETE FROM product_company WHERE productid = ? AND companyid = ?", [prodId, companyId], (err, res) => {
       if (err) {
         console.log("error: ", err);
         result(null, err);
@@ -92,10 +91,9 @@ Product.remove = (id, result) => {
         return;
       }
   
-      console.log(`deleted product with id: ${id} `);
+      console.log(`deleted from product_company with id: ${prodId, companyId} `);
       result(null, res);
     });
   };
 
-  
 module.exports = Product;

@@ -10,12 +10,10 @@ exports.create = (req, res) => {
       }
     
       const product = new Product({
-        Name: req.body.Name,
-        Type: req.body.Type,
-        Price: req.body.Price,
-        Image: req.body.Image,
-        Store: req.body.Store,
-        URL: req.body.URL
+        price: req.body.price,
+        image: req.body.image,
+        link: req.body.link,
+        group: req.body.group,
       });
     
       Product.create(product, (err, data) => {
@@ -44,15 +42,15 @@ exports.findAll = (req, res) => {
 // Find a single product with a id
 exports.findByID = (req, res) => {
 
-  Product.findById(req.params.id, (err, data) => {
+  Product.findById(req.params.productid, req.params.companyid, (err, data) => {
     if (err) {
       if (err.kind === "not_found") {
         res.status(404).send({
-          message: `Product with id ${req.params.id} not found.`
+          message: `Product with id ${req.params.prodId} not found.`
         });
       } else {
         res.status(500).send({
-          message: "Error retrieving product with id " + req.params.id
+          message: "Error retrieving product with id " + req.params.prodId
         });
       }
     } else res.send(data);
@@ -71,17 +69,17 @@ exports.update = (req, res) => {
   console.log(req.body);
 
   Product.updateById(
-    req.params.id,
+    req.params.productid, req.params.companyid,
     new Product(req.body),
     (err, data) => {
       if (err) {
         if (err.kind === "not_found") {
           res.status(404).send({
-            message: `Product with id ${req.params.id} not found.`
+            message: `Product with id ${req.params.productid} not found.`
           });
         } else {
           res.status(500).send({
-            message: "Error updating product with id " + req.params.id
+            message: "Error updating product with id " + req.params.productid
           });
         }
       } else res.send(data);
@@ -91,15 +89,15 @@ exports.update = (req, res) => {
 
 // Delete a product with the specified id in the request
 exports.delete = (req, res) => {
-  Product.remove(req.params.id, (err, data) => {
+  Product.remove(req.params.productid, req.params.companyid, (err, data) => {
     if (err) {
       if (err.kind === "not_found") {
         res.status(404).send({
-          message: `Product with id ${req.params.id} not found.`
+          message: `Product with id ${req.params.productid} not found.`
         });
       } else {
         res.status(500).send({
-          message: "Could not delete product with id " + req.params.id
+          message: "Could not delete product with id " + req.params.productid
         });
       }
     } else res.send({ message: `product was deleted successfully!` });

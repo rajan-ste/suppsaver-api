@@ -10,13 +10,13 @@ module.exports = app => {
     router.get("/", products.findAll);
   
     // Retrieve a single Product with id
-    router.get("/:id", products.findByID);
+    router.get("/:productid/:companyid", products.findByID);
   
     // Update a Product with id
-    router.put("/:id", products.update);
+    router.put("/:productid/:companyid", products.update);
   
     // Delete a Product with id
-    router.delete("/:id", products.delete);
+    router.delete("/:productid/:companyid", products.delete);
   
     app.use('/api/products', router);
   };
