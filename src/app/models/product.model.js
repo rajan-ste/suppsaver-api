@@ -2,8 +2,8 @@ const sql = require("./db.js");
 
 // constructor
 const Product = function(product) {
-  this.prodId = product.productid;
-  this.companyId = product.companyid;
+  this.productid = product.productid;
+  this.companyid = product.companyid;
   this.price = product.price;
   this.image = product.image;
   this.link = product.link;
@@ -11,6 +11,7 @@ const Product = function(product) {
 };
 
 Product.create = (newProduct, result) => {
+    console.log("New Product:", newProduct);
     sql.query("INSERT INTO product_company SET ?", newProduct, (err, res) => {
       if (err) {
         console.log("error: ", err);
@@ -18,8 +19,8 @@ Product.create = (newProduct, result) => {
         return;
       }
   
-      console.log("created product: ", { id: res.insertId, ...newProduct });
-      result(null, { id: res.insertId, ...newProduct });
+      console.log("created product: ", { ...newProduct });
+      result(null, { ...newProduct });
     });
   };
 

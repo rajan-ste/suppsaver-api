@@ -10,6 +10,8 @@ exports.create = (req, res) => {
       }
     
       const product = new Product({
+        productid: req.body.productid,
+        companyid: req.body.companyid,
         price: req.body.price,
         image: req.body.image,
         link: req.body.link,
