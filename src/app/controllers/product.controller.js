@@ -1,30 +1,42 @@
 const Product = require("../models/product.model.js");
 
-// Create and Save a new Product
+// Create and Save new Products
 exports.create = (req, res) => {
-    // Validate request
-    if (!req.body) {
-        res.status(400).send({
-          message: "Content can not be empty!"
-        });
-      }
-    
-      const product = new Product({
-        productid: req.body.productid,
-        companyid: req.body.companyid,
-        price: req.body.price,
-        image: req.body.image,
-        link: req.body.link,
-        group: req.body.group,
+  // Validate request
+  if (!req.body || !Array.isArray(req.body)) {
+      return res.status(400).send({
+          message: "Content can not be empty and should be an array!"
       });
-    
-      Product.create(product, (err, data) => {
-        if (err)
-          res.status(500).send({
-            message:
-              err.message || "Error occurred while creating the product."
+  }
+
+  // Iterate over each product in the array
+  const creationPromises = req.body.map(productData => {
+      return new Promise((resolve, reject) => {
+          const product = new Product({
+              productname: productData.productname,
+              companyid: productData.companyid,
+              price: productData.price,
+              image: productData.image,
+              link: productData.link,
           });
-        else res.send(data);
+
+          Product.create(product, (err, data) => {
+              if (err) {
+                  reject(err);
+              } else {
+                  resolve(data);
+              }
+          });
+      });
+  });
+
+  // Wait for all product creations to complete
+  Promise.all(creationPromises)
+      .then(results => res.send(results))
+      .catch(err => {
+          res.status(500).send({
+              message: err.message || "Error occurred while creating the products."
+          });
       });
 };
 
@@ -48,11 +60,11 @@ exports.findByID = (req, res) => {
     if (err) {
       if (err.kind === "not_found") {
         res.status(404).send({
-          message: `Product with id ${req.params.prodId} not found.`
+          message: `Product with id ${req.params.productid} not found.`
         });
       } else {
         res.status(500).send({
-          message: "Error retrieving product with id " + req.params.prodId
+          message: "Error retrieving product with id " + req.params.productid
         });
       }
     } else res.send(data);
