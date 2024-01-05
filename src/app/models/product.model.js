@@ -11,104 +11,74 @@ const Product = function(product) {
 };
 
 // Method to check if a similar product name already exists
-Product.findMostSimilar = (inputString) => {
-  return new Promise((resolve, reject) => {
-      const query = "SELECT id, name FROM product";
+Product.findMostSimilar = async (newProducts) => {
+  const query = "SELECT id, name FROM product";
+  const dbProducts = await new Promise((resolve, reject) => {
       sql.query(query, (err, rows) => {
-          if (err) {
-              reject(err);
-              return;
-          }
-
-          // Ensure inputString is a string
-          if (typeof inputString !== 'string') {
-              console.log(inputString);
-              reject(new Error("Input string must be a string"));
-              return;
-          }
-
-          // Ensure we have an array of strings to compare against
-          const names = rows.map(row => row.name);
-          if (!Array.isArray(names) || !names.every(name => typeof name === 'string')) {
-              reject(new Error("Comparison array must be an array of strings"));
-              return;
-          }
-
-          const bestMatch = stringSimilarity.findBestMatch(inputString, names);
-
-          if (bestMatch.bestMatch.rating >= 0.8) { // Using 0.8 as a threshold
-              resolve(rows[bestMatch.bestMatchIndex].id);
-          } else {
-              resolve(0);
-          }
+          if (err) reject(err);
+          else resolve(rows);
       });
+  });
+
+  return newProducts.map(newProduct => {
+      let highestMatch = { id: null, score: 0 };
+
+      for (let dbProduct of dbProducts) {
+          let score = stringSimilarity.compareTwoStrings(newProduct.productname, dbProduct.name);
+          if (score > highestMatch.score) {
+              highestMatch = { id: dbProduct.id, score };
+          }
+      }
+
+      return { ...newProduct, matchId: highestMatch.id, matchScore: highestMatch.score };
   });
 };
 
-
 // Method to create new products and insert them into product_company
-Product.create = async (products, result) => {
+Product.create = async (newProducts, result) => {
   try {
-      // Ensure 'products' is always an array
-      if (!Array.isArray(products)) {
-          products = [products];
+      // Ensure newProducts is always an array
+      if (!Array.isArray(newProducts)) {
+          newProducts = [newProducts];
       }
 
-      const productCreationPromises = products.map(async newProduct => {
-          console.log("Processing Product:", newProduct);
+      const matchedProducts = await Product.findMostSimilar(newProducts);
 
-          // Check for a similar product
-          const similarProductId = await Product.findMostSimilar(newProduct.productname);
+      for (let product of matchedProducts) {
           let productId;
 
-          if (similarProductId === 0) {
+          if (product.matchScore > 0.6) {
+              productId = product.matchId;
+          } else {
               // Insert new product into the product table
               const insertProductQuery = "INSERT INTO product (name) VALUES (?)";
               const productInsertion = await new Promise((resolve, reject) => {
-                  sql.query(insertProductQuery, [newProduct.productname], (err, res) => {
-                      if (err) {
-                          reject(err);
-                      } else {
-                          resolve(res.insertId);
-                      }
+                  sql.query(insertProductQuery, [product.productname], (err, res) => {
+                      if (err) reject(err);
+                      else resolve(res.insertId);
                   });
               });
               productId = productInsertion;
-          } else {
-              productId = similarProductId; // Use the ID of the existing similar product
           }
 
-          // Prepare the product_company object
-          const productCompanyData = {
-              productid: productId,
-              companyid: newProduct.companyid,
-              price: newProduct.price,
-              image: newProduct.image,
-              link: newProduct.link
-          };
-
-          // Insert into product_company
-          return new Promise((resolve, reject) => {
-              const insertProductCompanyQuery = "INSERT INTO product_company SET ?";
-              sql.query(insertProductCompanyQuery, productCompanyData, (err, res) => {
-                  if (err) {
-                      reject(err);
-                  } else {
-                      resolve({ id: res.insertId, ...productCompanyData });
-                  }
+          // Insert or update in product_company table
+          const insertProductCompanyQuery = "INSERT INTO product_company (productid, companyid, price, image, link) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE price = ?, image = ?, link = ?";
+          await new Promise((resolve, reject) => {
+              sql.query(insertProductCompanyQuery, [productId, product.companyid, product.price, product.image, product.link, product.price, product.image, product.link], (err, res) => {
+                  if (err) reject(err);
+                  else resolve(res);
               });
           });
-      });
 
-      // Wait for all product creations to complete
-      const createdProducts = await Promise.all(productCreationPromises);
-      result(null, createdProducts);
+          console.log("Inserted/Updated Product:", { productid: productId, ...product });
+      }
+
+      result(null, matchedProducts);
   } catch (err) {
-      console.log("error: ", err);
+      console.log("Error in creating products:", err);
       result(err, null);
   }
 };
-
 
 Product.findById = (prodId, companyId, result) => {
     sql.query("SELECT * FROM product_company WHERE productid = ? AND companyid = ?", [prodId, companyId], (err, res) => {
