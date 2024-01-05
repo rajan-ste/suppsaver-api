@@ -3,7 +3,7 @@ const stringSimilarity = require('string-similarity');
 
 // Constructor
 const Product = function(product) {
-  this.productname = product.productname;
+  this.productname = product.productname.replace(/pre-workout/gi, '').trim(); // Clean the name here
   this.companyid = product.companyid;
   this.price = product.price;
   this.image = product.image;
