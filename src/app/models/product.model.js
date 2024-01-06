@@ -3,7 +3,7 @@ const stringSimilarity = require('string-similarity');
 
 // Constructor
 const Product = function(product) {
-  this.productname = product.productname.replace(/pre-workout/gi, '').trim(); // Clean the name here
+  this.productname = product.productname.replace(/pre-workout/gi, '').trim(); // remove pre-workout from the name
   this.companyid = product.companyid;
   this.price = product.price;
   this.image = product.image;
@@ -30,11 +30,16 @@ Product.findMostSimilar = async (newProducts) => {
           }
       }
 
+      // Round the score to two decimal places
+      highestMatch.score = parseFloat(highestMatch.score.toFixed(2));
+
       return { ...newProduct, matchId: highestMatch.id, matchScore: highestMatch.score };
   });
 };
 
 // Method to create new products and insert them into product_company
+// ... [other parts of the code]
+
 Product.create = async (newProducts, result) => {
   try {
       // Ensure newProducts is always an array
@@ -47,7 +52,8 @@ Product.create = async (newProducts, result) => {
       for (let product of matchedProducts) {
           let productId;
 
-          if (product.matchScore > 0.6) {
+          // If the product has a match in the database and the score is above the threshold
+          if (product.matchId && product.matchScore > 0.6) {
               productId = product.matchId;
           } else {
               // Insert new product into the product table
@@ -58,19 +64,29 @@ Product.create = async (newProducts, result) => {
                       else resolve(res.insertId);
                   });
               });
-              productId = productInsertion;
+              productId = productInsertion; // Assign the new product ID
           }
 
-          // Insert or update in product_company table
-          const insertProductCompanyQuery = "INSERT INTO product_company (productid, companyid, price, image, link) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE price = ?, image = ?, link = ?";
+          // Insert into product_company table
+          const insertProductCompanyQuery = `
+            INSERT INTO product_company (productid, companyid, price, image, link, score, product_name)
+            VALUES (?, ?, ?, ?, ?, ?, ?)`;
           await new Promise((resolve, reject) => {
-              sql.query(insertProductCompanyQuery, [productId, product.companyid, product.price, product.image, product.link, product.price, product.image, product.link], (err, res) => {
+              sql.query(insertProductCompanyQuery, [
+                  productId, 
+                  product.companyid, 
+                  product.price, 
+                  product.image, 
+                  product.link, 
+                  parseFloat(product.matchScore).toFixed(2), // Round score to 2 decimal places
+                  product.productname // Insert product name
+              ], (err, res) => {
                   if (err) reject(err);
                   else resolve(res);
               });
           });
 
-          console.log("Inserted/Updated Product:", { productid: productId, ...product });
+          console.log("Inserted Product:", { productid: productId, ...product });
       }
 
       result(null, matchedProducts);
@@ -79,6 +95,10 @@ Product.create = async (newProducts, result) => {
       result(err, null);
   }
 };
+
+// ... [other parts of the code]
+
+
 
 Product.findById = (prodId, companyId, result) => {
     sql.query("SELECT * FROM product_company WHERE productid = ? AND companyid = ?", [prodId, companyId], (err, res) => {
