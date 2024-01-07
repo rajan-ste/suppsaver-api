@@ -17,6 +17,8 @@ module.exports = app => {
   
     // Delete a Product with id
     router.delete("/:companyid/:productid", products.delete);
+
+    router.put('/update-price', productController.updatePrice);
   
     app.use('/api/products', router);
   };

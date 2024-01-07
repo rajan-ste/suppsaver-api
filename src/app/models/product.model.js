@@ -3,7 +3,7 @@ const stringSimilarity = require('string-similarity');
 
 // Constructor
 const Product = function(product) {
-  this.productname = product.productname.replace(/pre-workout/gi, '').trim(); // remove pre-workout from the name
+  this.productname = product.productname.replace(/pre[- ]workout/gi, '').trim().toLowerCase();
   this.companyid = product.companyid;
   this.price = product.price;
   this.image = product.image;
@@ -38,11 +38,8 @@ Product.findMostSimilar = async (newProducts) => {
 };
 
 // Method to create new products and insert them into product_company
-// ... [other parts of the code]
-
 Product.create = async (newProducts, result) => {
   try {
-      // Ensure newProducts is always an array
       if (!Array.isArray(newProducts)) {
           newProducts = [newProducts];
       }
@@ -53,7 +50,7 @@ Product.create = async (newProducts, result) => {
           let productId;
 
           // If the product has a match in the database and the score is above the threshold
-          if (product.matchId && product.matchScore > 0.6) {
+          if (product.matchId && product.matchScore > 0.7) {
               productId = product.matchId;
           } else {
               // Insert new product into the product table
@@ -64,7 +61,7 @@ Product.create = async (newProducts, result) => {
                       else resolve(res.insertId);
                   });
               });
-              productId = productInsertion; // Assign the new product ID
+              productId = productInsertion; 
           }
 
           // Insert into product_company table
@@ -95,10 +92,6 @@ Product.create = async (newProducts, result) => {
       result(err, null);
   }
 };
-
-// ... [other parts of the code]
-
-
 
 Product.findById = (prodId, companyId, result) => {
     sql.query("SELECT * FROM product_company WHERE productid = ? AND companyid = ?", [prodId, companyId], (err, res) => {
