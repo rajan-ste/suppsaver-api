@@ -166,4 +166,30 @@ Product.remove = (prodId, companyId, result) => {
     });
   };
 
+  Product.updateProductPrice = (products, result) => {
+    let updatePromises = products.map(product => {
+        const { productname, companyid, price } = product;
+        return new Promise((resolve, reject) => {
+            const query = "UPDATE product_company SET price = ? WHERE product_name = ? AND companyid = ?";
+            sql.query(query, [price, productname.toLowerCase().replace(/pre[- ]workout/gi, '').trim(), companyid], (err, res) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                if (res.affectedRows === 0) {
+                    resolve({ kind: "not_found", productname });
+                } else {
+                    resolve({ id: res.insertId, productname, price });
+                }
+            });
+        });
+    });
+
+    Promise.allSettled(updatePromises)
+        .then(results => result(null, results))
+        .catch(err => result(err, null));
+};
+
+
+
 module.exports = Product;

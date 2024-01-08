@@ -18,7 +18,8 @@ module.exports = app => {
     // Delete a Product with id
     router.delete("/:companyid/:productid", products.delete);
 
-    router.put('/update-price', productController.updatePrice);
+    // Automate price updates
+    router.put('/update-price', products.updatePrice);
   
     app.use('/api/products', router);
   };

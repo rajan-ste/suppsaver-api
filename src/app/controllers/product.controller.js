@@ -117,3 +117,17 @@ exports.delete = (req, res) => {
     } else res.send({ message: `product was deleted successfully!` });
   });
 };
+
+exports.updatePrice = (req, res) => {
+  const products = req.body; // expecting an array of products
+
+  Product.updateProductPrice(products, (err, data) => {
+      if (err) {
+          console.error('Error updating product prices:', err);
+          return res.status(500).send('Internal Server Error');
+      }
+
+      const updateResults = data.map(item => item.status === 'fulfilled' ? item.value : { error: item.reason });
+      res.json({ message: 'Product prices updated', updateResults });
+  });
+};
