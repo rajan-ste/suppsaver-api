@@ -6,8 +6,11 @@ module.exports = app => {
     // Create a new Product
     router.post("/", products.create);
   
-    // Retrieve all Products
-    router.get("/", products.findAll);
+    // Retrieve all products
+    router.get("/", products.findProds);
+
+    // Retrieve all product_company entries
+    router.get("/product-company", products.findAll);
   
     // Retrieve a single Product with id
     router.get("/:companyid/:productid", products.findByID);

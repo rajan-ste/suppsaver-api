@@ -40,14 +40,14 @@ exports.create = (req, res) => {
       });
 };
 
-// Retrieve all Products
+// Retrieve all Product-company entries
 exports.findAll = (req, res) => {
 
   Product.getAll((err, data) => {
     if (err)
       res.status(500).send({
         message:
-          err.message || "Error occurred while retrieving products."
+          err.message || "Error occurred while retrieving from product_company."
       });
     else res.send(data);
   });
@@ -129,5 +129,18 @@ exports.updatePrice = (req, res) => {
 
       const updateResults = data.map(item => item.status === 'fulfilled' ? item.value : { error: item.reason });
       res.json({ message: 'Product prices updated', updateResults });
+  });
+};
+
+// Retrieve all Products
+exports.findProds = (req, res) => {
+
+  Product.getProds((err, data) => {
+    if (err)
+      res.status(500).send({
+        message:
+          err.message || "Error occurred while retrieving products."
+      });
+    else res.send(data);
   });
 };

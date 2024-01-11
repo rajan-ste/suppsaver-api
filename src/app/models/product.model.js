@@ -54,9 +54,9 @@ Product.create = async (newProducts, result) => {
               productId = product.matchId;
           } else {
               // Insert new product into the product table
-              const insertProductQuery = "INSERT INTO product (name) VALUES (?)";
+              const insertProductQuery = "INSERT INTO product (name, image) VALUES (?, ?)";
               const productInsertion = await new Promise((resolve, reject) => {
-                  sql.query(insertProductQuery, [product.productname], (err, res) => {
+                  sql.query(insertProductQuery, [product.productname, product.image], (err, res) => {
                       if (err) reject(err);
                       else resolve(res.insertId);
                   });
@@ -188,6 +188,21 @@ Product.remove = (prodId, companyId, result) => {
     Promise.allSettled(updatePromises)
         .then(results => result(null, results))
         .catch(err => result(err, null));
+};
+
+Product.getProds = (result) => {
+  let query = "SELECT * FROM product";
+
+  sql.query(query, (err, res) => {
+    if (err) {
+      console.log("error: ", err);
+      result(null, err);
+      return;
+    }
+
+    console.log("products: ", res);
+    result(null, res);
+  });
 };
 
 
