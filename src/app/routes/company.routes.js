@@ -3,13 +3,13 @@ module.exports = app => {
   
     var router = require("express").Router();
   
-    // Retrieve all Products
+    // Retrieve all companies
     router.get("/", companies.findAll);
   
-    // Retrieve a single Product with id
+    // Retrieve a single company with id
     router.get("/:id", companies.findByID);
   
-    // Update a Product with id
+    // Update a company with id
     router.put("/:id", companies.update);
   
     app.use('/api/companies', router);
