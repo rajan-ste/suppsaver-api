@@ -205,6 +205,25 @@ Product.getProds = (result) => {
   });
 };
 
+Product.search = (searchTerm, result) => {
+  
+  let query = "SELECT * FROM product WHERE name LIKE ?";
+
+  
+  let formattedSearchTerm = `${searchTerm}%`;
+
+  sql.query(query, [formattedSearchTerm], (err, res) => {
+    if (err) {
+      console.log("error: ", err);
+      result(null, err);
+      return;
+    }
+
+    console.log("products: ", res);
+    result(null, res);
+  });
+};
+
 
 
 module.exports = Product;

@@ -144,3 +144,20 @@ exports.findProds = (req, res) => {
     else res.send(data);
   });
 };
+
+// Search products table given a string
+exports.searchProds = (req, res) => {
+  
+  const searchTerm = req.query.term;
+  
+  Product.search(searchTerm, (err, data) => {
+    if (err) {
+      res.status(500).send({
+        message: err.message || "Error occurred while searching products."
+      });
+    } else {
+      res.send(data);
+    }
+  });
+};
+

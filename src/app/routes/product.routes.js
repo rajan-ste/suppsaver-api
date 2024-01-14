@@ -23,6 +23,9 @@ module.exports = app => {
 
     // Automate price updates
     router.put('/update-price', products.updatePrice);
+
+    // Search for products
+    router.get('/search', products.searchProds);
   
     app.use('/api/products', router);
   };
