@@ -4,7 +4,7 @@ const bcrypt = require("bcrypt");
 // Constructor
 const User = function(user) {
     this.email = user.email;
-    this.password = user.password; // The password will be hashed before saving
+    this.password = user.password; 
 };
 
 // Method to create a new user
