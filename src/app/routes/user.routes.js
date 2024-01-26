@@ -1,6 +1,6 @@
 module.exports = app => {
     const users = require("../controllers/user.controller.js");
-    const authenticateUser = require("../middleware/authentication.js")
+    const { authenticateUser } = require("../middleware/authentication.js")
     const jwt = require('jsonwebtoken');
   
     var router = require("express").Router();

@@ -23,6 +23,7 @@ Product.findMostSimilar = async (newProducts) => {
   return newProducts.map(newProduct => {
       let highestMatch = { id: null, score: 0 };
 
+      // find the best match currently in the database
       for (let dbProduct of dbProducts) {
           let score = stringSimilarity.compareTwoStrings(newProduct.productname, dbProduct.name);
           if (score > highestMatch.score) {
@@ -209,7 +210,6 @@ Product.search = (searchTerm, result) => {
   
   let query = "SELECT * FROM product WHERE name LIKE ?";
 
-  
   let formattedSearchTerm = `${searchTerm}%`;
 
   sql.query(query, [formattedSearchTerm], (err, res) => {
