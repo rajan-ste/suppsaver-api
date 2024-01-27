@@ -36,3 +36,22 @@ exports.findById = (req, res) => {
         }
     });
 };
+
+exports.delete = (req, res) => {
+    const entryToDelete = new Watchlist({
+        userId: req.userId, 
+        productId: req.body.productid
+    });
+
+    Watchlist.delete(entryToDelete, (err, data) => {
+        console.log(entryToDelete)
+        if (err) {
+            res.status(500).send({
+                message: err.message || "Some error occurred while deleting the Watchlist entry."
+            });
+        } else {
+            
+            res.status(201).send(data);
+        }
+    });
+};

@@ -40,4 +40,19 @@ Watchlist.findByUserId = (userId, result) => {
     });
 };
 
+// Method to delete watchlist product by user ID
+Watchlist.delete = (entryToDelete, result) => {
+    const query = "DELETE FROM watchlist WHERE userid = ? AND productid = ?";
+
+    sql.query(query, [entryToDelete.userId, entryToDelete.productId], (err, res) => {
+        if (err) {
+            result(err, null);
+            return;
+        }
+
+        console.log("Deleted watchlist entry: ", { id: res.insertId, ...entryToDelete });
+        result(null, { id: res.insertId, userId: entryToDelete.userId, productId: entryToDelete.productId });
+    });
+};
+
 module.exports = Watchlist;

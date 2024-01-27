@@ -10,6 +10,9 @@ module.exports = app => {
 
     // fetch watchlist products
     router.get('/', authenticateToken, watchlist.findById);
+
+    // delete a product from watchlist
+    router.delete('/', authenticateToken, watchlist.delete)
   
     app.use('/api/watchlist', router);
   };
