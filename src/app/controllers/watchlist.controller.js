@@ -24,7 +24,7 @@ exports.findById = (req, res) => {
         if (err) {
             if (err.kind === "not_found") {
                 res.status(404).send({
-                    message: `Not found Watchlist with user ID ${req.userId}.`
+                    message: `Watchlist Not found with user ID ${req.userId}.`
                 });
             } else {
                 res.status(500).send({
