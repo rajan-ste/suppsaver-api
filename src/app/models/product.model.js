@@ -194,7 +194,7 @@ Product.remove = (prodId, companyId, result) => {
 Product.getProds = (result) => {
   let query = "SELECT * FROM product";
 
-  db.getConnection((err, connection) => {
+  sql.getConnection((err, connection) => {
     if (err) {
       console.log("error: ", err);
       result(err, null);
