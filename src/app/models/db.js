@@ -1,15 +1,16 @@
-const mysql = require("mysql");
-const dbConfig = require("../config/db.config");
+const mysql = require('mysql');
+const dbUrl = process.env.DATABASE_URL;
 
-// Create a connection to the database
+// Parse the database URL
+const dbParts = dbUrl.match(/mysql:\/\/(.*):(.*)@(.*):(.*)\/(.*)\?/);
+
 const connection = mysql.createConnection({
-  host: dbConfig.HOST,
-  user: dbConfig.USER,
-  password: dbConfig.PASSWORD,
-  database: dbConfig.DB
+  host: dbParts[3],
+  user: dbParts[1],
+  password: dbParts[2],
+  database: dbParts[5]
 });
 
-// open the MySQL connection
 connection.connect(error => {
   if (error) throw error;
   console.log("Successfully connected to the database.");
