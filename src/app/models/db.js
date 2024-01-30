@@ -6,9 +6,9 @@ const dbParts = dbUrl.match(/mysql:\/\/(.*):(.*)@(.*):(.*)\/(.*)\?/);
 
 const connection = mysql.createConnection({
   host: "us-cluster-east-01.k8s.cleardb.net",
-  user: "b27037be334874",
-  password: "1cfb8b43",
-  database: "heroku_6d10f5d88d3405d"
+  user: "b9647831c9c227",
+  password: "e084edce",
+  database: "heroku_5c7a1dc315362c5"
 });
 
 connection.connect(error => {
