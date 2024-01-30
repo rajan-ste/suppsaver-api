@@ -3,10 +3,10 @@ const mysql = require('mysql');
 // Create a connection pool with database details
 const pool = mysql.createPool({
   connectionLimit: 10, 
-  host: "us-cluster-east-01.k8s.cleardb.net",
-  user: "b9647831c9c227",
-  password: "e084edce",
-  database: "heroku_5c7a1dc315362c5"
+  host: "d6rii63wp64rsfb5.cbetxkdyhwsb.us-east-1.rds.amazonaws.com",
+  user: "rdile1n7zl6vbisb",
+  password: "zbbls6n90bj08gaq",
+  database: "s7x04anwj94bjqpf"
 });
 
 // Function to get a connection from the pool
