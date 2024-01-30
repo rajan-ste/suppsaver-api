@@ -6,27 +6,35 @@ require('dotenv').config();
 
 async function authenticateUser(req, res, next) {
     const query = "SELECT * FROM users";
-    const users =  await new Promise((resolve, reject) => {
-        sql.query(query, (err, rows) => {
-            if (err) reject(err);
-            else resolve(rows);
+
+    sql.getConnection((err, connection) => {
+        if (err) {
+            return res.status(500).send('Error connecting to the database');
+        }
+
+        connection.query(query, async (err, users) => {
+            connection.release();
+
+            if (err) {
+                return res.status(500).send('Error querying the database');
+            }
+
+            const { email, password } = req.body;
+            const user = users.find(u => u.email === email);
+
+            if (!user) {
+                return res.status(401).send('User not found');
+            }
+
+            const isMatch = await bcrypt.compare(password, user.password);
+            if (!isMatch) {
+                return res.status(401).send('Password is incorrect');
+            }
+
+            req.user = user;
+            next();
         });
     });
-
-    const { email, password } = req.body;
-    const user = users.find(u => u.email === email);
-
-    if (!user) {
-        return res.status(401).send('User not found');
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-        return res.status(401).send('Password is incorrect');
-    }
-
-    req.user = user; 
-    next(); 
 }
 
 function authenticateToken(req, res, next) {
