@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import sys
+import os
 
 def scrape_products(url):
 
@@ -40,7 +41,9 @@ def scrape_products(url):
                 'link': product_link
             })
 
-        url = "http://localhost:8080/api/products/update-price"
+        url = "http://www.suppsaver.net/api/products/update-price"
+        api_key = os.getenv('API_KEY')
+        headers['X-API-KEY'] = api_key
 
         response = requests.put(url, headers=headers, json=product_data)
 

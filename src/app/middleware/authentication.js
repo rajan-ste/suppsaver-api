@@ -43,8 +43,17 @@ function authenticateToken(req, res, next) {
     });
 }
 
+const authenticateApiKey = (req, res, next) => {
+    const apiKey = req.headers['x-api-key'];
+    if (apiKey !== process.env.API_KEY) {
+        return res.status(403).send('Access Denied');
+    }
+    next();
+};
+
 module.exports = {
     authenticateUser,
-    authenticateToken
+    authenticateToken,
+    authenticateApiKey
 };
 

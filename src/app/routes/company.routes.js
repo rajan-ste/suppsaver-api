@@ -1,5 +1,6 @@
 module.exports = app => {
     const companies = require("../controllers/company.controller.js");
+    const { authenticateApiKey } = require("../middleware/authentication.js")
   
     var router = require("express").Router();
   
@@ -10,7 +11,7 @@ module.exports = app => {
     router.get("/:id", companies.findByID);
   
     // Update a company with id
-    router.put("/:id", companies.update);
+    router.put("/:id", authenticateApiKey, companies.update);
   
     app.use('/api/companies', router);
   };
