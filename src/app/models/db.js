@@ -1,5 +1,5 @@
 const mysql = require('mysql');
-const dbUrl = process.env.DATABASE_URL;
+const dbUrl = process.env.CLEARDB_DATABASE_URL;
 
 // Parse the database URL
 const dbParts = dbUrl.match(/mysql:\/\/(.*):(.*)@(.*):(.*)\/(.*)\?/);
