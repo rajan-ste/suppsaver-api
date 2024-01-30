@@ -194,15 +194,26 @@ Product.remove = (prodId, companyId, result) => {
 Product.getProds = (result) => {
   let query = "SELECT * FROM product";
 
-  sql.query(query, (err, res) => {
+  db.getConnection((err, connection) => {
     if (err) {
       console.log("error: ", err);
-      result(null, err);
+      result(err, null);
       return;
     }
 
-    console.log("products: ", res);
-    result(null, res);
+    connection.query(query, (err, res) => {
+      // Always release the connection back to the pool
+      connection.release();
+
+      if (err) {
+        console.log("error: ", err);
+        result(null, err);
+        return;
+      }
+
+      console.log("products: ", res);
+      result(null, res);
+    });
   });
 };
 
