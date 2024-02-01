@@ -4,8 +4,10 @@ const cors = require("cors");
 
 const app = express();
 
+allowedOrigins = ['http://suppsaver.net', 'http://www.suppsaver.net', 'https://suppsaver.net', 'http://www.suppsaver.net']
+
 var corsOptions = {
-  origin: "https://main--lucent-paprenjak-cb0d7b.netlify.app"
+  origin: allowedOrigins
 };
 
 app.use(cors(corsOptions));
