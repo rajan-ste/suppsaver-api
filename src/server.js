@@ -4,7 +4,7 @@ const cors = require("cors");
 
 const app = express();
 
-allowedOrigins = ['http://suppsaver.net', 'http://www.suppsaver.net', 'https://suppsaver.net', 'http://www.suppsaver.net']
+allowedOrigins = ['http://suppsaver.net', 'http://www.suppsaver.net', 'https://suppsaver.net', 'http://www.suppsaver.net', 'http://localhost:5173']
 
 var corsOptions = {
   origin: allowedOrigins

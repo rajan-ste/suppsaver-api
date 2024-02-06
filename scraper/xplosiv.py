@@ -41,7 +41,7 @@ def scrape_products(url):
                 'link': product_link
             })
 
-        url = "http://www.suppsaver.net/api/products/update-price"
+        url = "http://api.suppsaver.net/api/products/update-price"
         api_key = os.getenv('API_KEY')
         headers['X-API-KEY'] = api_key
 
