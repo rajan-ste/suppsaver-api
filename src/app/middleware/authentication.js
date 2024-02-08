@@ -52,9 +52,9 @@ function authenticateToken(req, res, next) {
 }
 
 const authenticateApiKey = (req, res, next) => {
-    const apiKey = req.headers['x-api-key'];
+    const apiKey = req.headers['api-key'];
     if (apiKey !== process.env.API_KEY) {
-        return res.status(403).send('Access Denied');
+        return res.status(403).send('Access to API Denied');
     }
     next();
 };

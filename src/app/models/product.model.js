@@ -224,34 +224,64 @@ Product.remove = (prodId, companyId, result) => {
 
 // updateProductPrice method
 Product.updateProductPrice = (products, result) => {
-  let updatePromises = products.map(product => {
+  // Step 1: Aggregate products by unique key and find the lowest price
+  const productMap = new Map();
+
+  products.forEach(product => {
     const { productname, companyid, price } = product;
+    const key = `${productname.toLowerCase().replace(/pre[- ]workout/gi, '').trim()}-${companyid}`;
+
+    if (!productMap.has(key) || productMap.get(key).price > price) {
+      productMap.set(key, { productname, companyid, price });
+    }
+  });
+
+  // Step 2: Create update promises for each unique product with the lowest price
+  let updatePromises = Array.from(productMap.values()).map(({ productname, companyid, price }) => {
     return new Promise((resolve, reject) => {
       const query = "UPDATE product_company SET price = ? WHERE product_name = ? AND companyid = ?";
+      
       sql.getConnection((err, connection) => {
-        if (err) reject(err);
+        if (err) {
+          console.log("error getting connection: ", err);
+          reject(err);
+          return;
+        }
 
-        connection.query(query, [price, productname.toLowerCase().replace(/pre[- ]workout/gi, '').trim(), companyid], (err, res) => {
+        console.log("Executing query:", query, [price, productname.replace(/pre[- ]workout/gi, '').trim().toLowerCase(), companyid]);
+
+        connection.query(query, [price, productname.replace(/pre[- ]workout/gi, '').trim().toLowerCase(), companyid], (err, res) => {
           connection.release();
 
           if (err) {
+            console.log("error executing query: ", err);
             reject(err);
             return;
           }
           if (res.affectedRows === 0) {
+            console.log("No rows affected for product name:", productname);
             resolve({ kind: "not_found", productname });
           } else {
-            resolve({ id: res.insertId, productname, price });
+            console.log("Updated product price for:", productname, "New Price:", price);
+            resolve({ id: res.insertId, productname, price }); // Note: insertId might not be relevant for an UPDATE operation
           }
         });
       });
     });
   });
 
+  // Step 3: Wait for all update operations to complete
   Promise.allSettled(updatePromises)
-    .then(results => result(null, results))
-    .catch(err => result(err, null));
+    .then(results => {
+      console.log("All lowest prices updated.");
+      result(null, results);
+    })
+    .catch(err => {
+      console.error("Error updating prices:", err);
+      result(err, null);
+    });
 };
+
 
 // getProds method
 Product.getProds = (result) => {
@@ -273,7 +303,6 @@ Product.getProds = (result) => {
         result(null, err);
         return;
       }
-
       console.log("products: ", res);
       result(null, res);
     });
@@ -283,7 +312,7 @@ Product.getProds = (result) => {
 // search method
 Product.search = (searchTerm, result) => {
   let query = "SELECT * FROM product WHERE name LIKE ?";
-  let formattedSearchTerm = `${searchTerm}%`;
+  let formattedSearchTerm = `%${searchTerm}%`;
 
   sql.getConnection((err, connection) => {
     if (err) {

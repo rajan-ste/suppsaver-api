@@ -2,8 +2,11 @@ import requests
 from bs4 import BeautifulSoup
 import sys
 import os
+from dotenv import load_dotenv
 
 def scrape_products(url):
+
+    load_dotenv()
 
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
@@ -11,7 +14,6 @@ def scrape_products(url):
     
     response = requests.get(url, headers=headers)
 
-   
     if response.status_code == 200:
         soup = BeautifulSoup(response.text, 'html.parser')
 
@@ -41,18 +43,21 @@ def scrape_products(url):
                 'link': product_link
             })
 
-        url = "http://api.suppsaver.net/api/products/update-price"
+        api_url = os.getenv('API_URL')
+        url = api_url + "/products/update-price"
+        print(url)
         api_key = os.getenv('API_KEY')
-        headers['X-API-KEY'] = api_key
+        db_headers = {
+        'api-key': api_key
+        }
 
-        response = requests.put(url, headers=headers, json=product_data)
+        response = requests.put(url, headers=db_headers, json=product_data)
 
         print(f"Status Code: {response.status_code}")
         print(f"Response Body: {response.text}")
 
         return product_data
     
-
     else:
         print("Failed to retrieve the webpage")
         return []
