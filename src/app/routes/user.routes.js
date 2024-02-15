@@ -11,7 +11,7 @@ module.exports = app => {
     // Authenticate a user
     router.post('/login', authenticateUser, (req, res) => {
       const user = req.user;
-      const token = jwt.sign({ userId: user.id }, process.env.JWT_KEY);
+      const token = jwt.sign({ userId: user.id }, process.env.JWT_KEY, { expiresIn: '1h' });
       res.json({ token });
   });
   
