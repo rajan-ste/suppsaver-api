@@ -7,7 +7,12 @@ const User = function(user) {
     this.password = user.password; 
 };
 
-// Method to create a new user
+/**
+ * Creates a new user in the database with a hashed password.
+ * @param {Object} newUser An object containing the new user's details. Must include 'email' and 'password'.
+ * @param {(error: Error, result: Object) => void} result Callback function to handle the result of the user creation operation.
+ *        If successful, returns the new user's ID and email. If an error occurs, returns an error object.
+ */
 User.create = async (newUser, result) => {
     try {
         // Hash the password

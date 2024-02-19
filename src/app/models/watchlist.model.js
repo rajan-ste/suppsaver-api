@@ -6,7 +6,11 @@ const Watchlist = function(watchlist) {
     this.productId = watchlist.productId;
 };
 
-// Method to create a new watchlist entry
+/**
+ * Creates a new entry in the watchlist for a user.
+ * @param {Object} newEntry An object containing the new watchlist entry details, including userId and productId.
+ * @param {(error: Error, result: Object) => void} result Callback function to handle the operation's result.
+ */
 Watchlist.create = (newEntry, result) => {
     const query = "INSERT INTO watchlist (userid, productid) VALUES (?, ?)";
 
@@ -32,7 +36,11 @@ Watchlist.create = (newEntry, result) => {
     });
 };
 
-// Method to get watchlist by user ID
+/**
+ * Retrieves all watchlist entries for a given user by their user ID.
+ * @param {number} userId The ID of the user whose watchlist entries are to be retrieved.
+ * @param {(error: Error, result: Object[]) => void} result Callback function to handle the operation's result.
+ */
 Watchlist.findByUserId = (userId, result) => {
     sql.getConnection((err, connection) => {
         if (err) {
@@ -61,7 +69,11 @@ Watchlist.findByUserId = (userId, result) => {
     });
 };
 
-// Method to delete watchlist product by user ID
+/**
+ * Deletes a specific watchlist entry based on a user ID and product ID.
+ * @param {Object} entryToDelete An object containing the userId and productId of the watchlist entry to be deleted.
+ * @param {(error: Error, result: Object) => void} result Callback function to handle the operation's result.
+ */
 Watchlist.delete = (entryToDelete, result) => {
     const query = "DELETE FROM watchlist WHERE userid = ? AND productid = ?";
 

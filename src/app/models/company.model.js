@@ -7,6 +7,11 @@ const Company = function(company) {
   this.homepage = company.homepage;
 };
 
+/**
+ * Find a company by its ID.
+ * @param {number} id The ID of the company to find.
+ * @param {(error: Error, result: Object) => void} result Callback function to handle the query result.
+ */
 Company.findById = (id, result) => {
   sql.getConnection((err, connection) => {
     if (err) {
@@ -35,6 +40,10 @@ Company.findById = (id, result) => {
   });
 };
 
+/**
+ * Retrieve all companies from the database.
+ * @param {(error: Error, result: Object[]) => void} result Callback function to handle the query result.
+ */
 Company.getAll = (result) => {
   sql.getConnection((err, connection) => {
     if (err) {
@@ -58,6 +67,12 @@ Company.getAll = (result) => {
   });
 };
 
+/**
+ * Update a company by its ID.
+ * @param {number} id The ID of the company to update.
+ * @param {Object} company An object containing the updated values for the company.
+ * @param {(error: Error, result: Object) => void} result Callback function to handle the query result.
+ */
 Company.updateById = (id, company, result) => {
   sql.getConnection((err, connection) => {
     if (err) {

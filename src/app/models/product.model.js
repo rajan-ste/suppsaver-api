@@ -10,7 +10,13 @@ const Product = function(product) {
   this.link = product.link;
 };
 
-// findMostSimilar method
+/**
+ * Compares new products against existing products in the database to find the most similar match based on product names.
+ *
+ * @param {Object[]} newProducts An array of new product objects to be matched. Each object should contain a `productname` property.
+ * @returns {Promise<Object[]>} A promise that resolves to an array of new product objects, each augmented with `matchId` and `matchScore` properties
+ * indicating the most similar existing product's ID and the similarity score, respectively.
+ */
 Product.findMostSimilar = async (newProducts) => {
   const query = "SELECT id, name FROM product";
   const dbProducts = await new Promise((resolve, reject) => {
@@ -42,7 +48,13 @@ Product.findMostSimilar = async (newProducts) => {
   });
 };
 
-// create method
+/**
+ * Creates a new product in the product table or matches them with existing product table members based on name similarity.
+ * Additionally, each product is linked to a company in the `product_company` table.
+ * 
+ * @param {Object[]|Object} newProducts The new product(s) to be created or matched. Can be a single product object or an array of product objects.
+ * @param {(err: Error, result: Object[]) => void} result Callback function to handle the result. Returns an error or the list of matched/inserted products.
+ */
 Product.create = async (newProducts, result) => {
   try {
     if (!Array.isArray(newProducts)) {
@@ -107,7 +119,13 @@ Product.create = async (newProducts, result) => {
   }
 };
 
-// findById method
+/**
+ * Retrieves a specific product by its ID and associated company ID from the product_company table.
+ * 
+ * @param {number} prodId The ID of the product to find.
+ * @param {number} companyId The ID of the company associated with the product.
+ * @param {(error: Error, result: Object) => void} result Callback function to handle the query result.
+ */
 Product.findById = (prodId, companyId, result) => {
     sql.getConnection((err, connection) => {
         if (err) {
@@ -136,7 +154,10 @@ Product.findById = (prodId, companyId, result) => {
     });
 };
 
-// getAll method
+/**
+ * Retrieves all products and their details from the product_company table.
+ * @param {(error: Error, result: Object[]) => void} result Callback to handle the response.
+ */
 Product.getAll = (result) => {
     sql.getConnection((err, connection) => {
         if (err) {
@@ -160,7 +181,13 @@ Product.getAll = (result) => {
     });
 };
 
-// updateById method
+/**
+ * Updates a specific product's details in the product_company table by product ID and company ID.
+ * @param {number} prodId The ID of the product to update.
+ * @param {number} companyId The ID of the company associated with the product.
+ * @param {Object} product The product details to update.
+ * @param {(error: Error, result: Object) => void} result Callback to handle the response.
+ */
 Product.updateById = (prodId, companyId, product, result) => {
     sql.getConnection((err, connection) => {
         if (err) {
@@ -193,7 +220,12 @@ Product.updateById = (prodId, companyId, product, result) => {
     });
 };
 
-// remove method
+/**
+ * Removes a product from the product_company table given a product ID and company ID.
+ * @param {number} prodId The ID of the product to delete.
+ * @param {number} companyId The ID of the company associated with the product.
+ * @param {(error: Error, result: Object) => void} result Callback to handle the response.
+ */
 Product.remove = (prodId, companyId, result) => {
     sql.getConnection((err, connection) => {
         if (err) {
@@ -222,9 +254,15 @@ Product.remove = (prodId, companyId, result) => {
     });
 };
 
-// updateProductPrice method
+/**
+ * Updates the price of products in the product_company table. It aggregates products by a unique key and finds the lowest price for updates.
+ * We need to find the lowest price of a product since sprintfit displays different flavours at different prices and we only want the lowest.
+ * 
+ * @param {Object[]} products Array of product objects to update prices for.
+ * @param {(error: Error, result: Object[]) => void} result Callback to handle the response.
+ */
 Product.updateProductPrice = (products, result) => {
-  // Step 1: Aggregate products by unique key and find the lowest price
+  // Aggregate products by unique key and find the lowest price
   const productMap = new Map();
 
   products.forEach(product => {
@@ -236,7 +274,7 @@ Product.updateProductPrice = (products, result) => {
     }
   });
 
-  // Step 2: Create update promises for each unique product with the lowest price
+  // Create update promises for each unique product with the lowest price
   let updatePromises = Array.from(productMap.values()).map(({ productname, companyid, price }) => {
     return new Promise((resolve, reject) => {
       const query = "UPDATE product_company SET price = ? WHERE product_name = ? AND companyid = ?";
@@ -270,7 +308,7 @@ Product.updateProductPrice = (products, result) => {
     });
   });
 
-  // Step 3: Wait for all update operations to complete
+  // Wait for all update operations to complete
   Promise.allSettled(updatePromises)
     .then(results => {
       console.log("All lowest prices updated.");
@@ -283,7 +321,10 @@ Product.updateProductPrice = (products, result) => {
 };
 
 
-// getProds method
+/**
+ * Retrieves all products from the product table.
+ * @param {(error: Error, result: Object[]) => void} result Callback to handle the response.
+ */
 Product.getProds = (result) => {
   let query = "SELECT * FROM product";
 
@@ -309,7 +350,11 @@ Product.getProds = (result) => {
   });
 };
 
-// search method
+/**
+ * Searches for products by name in the product table using a LIKE query.
+ * @param {string} searchTerm The term to search for within the product name.
+ * @param {(error: Error, result: Object[]) => void} result Callback to handle the response.
+ */
 Product.search = (searchTerm, result) => {
   let query = "SELECT * FROM product WHERE name LIKE ?";
   let formattedSearchTerm = `%${searchTerm}%`;
